@@ -31,23 +31,34 @@ class User(db.Model):
 class Movie(db.Model):
     """Movies."""
 
-    __tablename__ = "movie"
+    __tablename__ = "movies"
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     released = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(300), nullable=True)
 
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return f"<Movie movie_id={self.movie_id} title={self.title} released={self.released} imdb_url={self.imdb_url}>"
+
 
 class Rating(db.Model):
     """Ratings of ratings website."""
 
-    __tablename__ = "rating"
+    __tablename__ = "ratings"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     movie_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     score = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return f"<Rating rating_id={self.rating_id} movie_id={self.movie_id} user_id={self.user_id} score={self.score}>"
+
 
 ##############################################################################
 # Helper functions
