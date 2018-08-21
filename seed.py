@@ -2,11 +2,12 @@
 
 from sqlalchemy import func
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
 
 from model import connect_to_db, db
 from server import app
+import datetime
 
 
 def load_users():
@@ -37,7 +38,7 @@ def load_users():
 def load_movies():
     """Load movies from u.item into database."""
 
-    # print("Movies")
+    print("Movies")
 
     # Delete all rows in table, so if we need to run this a second time,
     # we won't be trying to add duplicate movies
@@ -50,13 +51,21 @@ def load_movies():
         #Split to use items seperately and then stripped to remove extra whitespaces
         row_lst = row.split("|")
         #Unpacked and labled by items index
-        movie_id, title, release, imdb_url = row_lst[0], row_lst[1], row_lst[2], row_lst[3]
+        movie_id, title, released_str, imdb_url = row_lst[0], row_lst[1], row_lst[2], row_lst[4]
 
+        if released_str:
+            released_at = datetime.datetime.strptime(released_str, "%d-%b-%Y")
+        else:
+            released_at = None
+
+        if title[-1] == ')':
+            if title[-2].isdigit():
+                title = title[:-7]
 
         movie = Movie(movie_id=movie_id,
                     title=title,
-                    release=release,
-                    imd_url=imdb_url)
+                    released=released_at,
+                    imdb_url=imdb_url)
 
         # We need to add to the session or it won't ever be stored
         db.session.add(movie)
@@ -67,6 +76,27 @@ def load_movies():
 
 def load_ratings():
     """Load ratings from u.data into database."""
+    
+    print("Ratings")
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Rating.query.delete()
+
+    # Read u.user file and insert data
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        movie_id, user_id, score, datestamp = row.split()
+
+        rating = Rating(movie_id=movie_id, 
+                    user_id=user_id,
+                    score=score)
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(rating)
+
+    # Once we're done, we should commit our work
+    db.session.commit()
 
 
 def set_val_user_id():
