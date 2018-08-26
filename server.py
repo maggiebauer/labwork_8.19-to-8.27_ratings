@@ -46,7 +46,25 @@ def register_form():
     user_email = request.form.get("email")
     user_password = request.form.get("password")
 
+    session['s_user_email'] = user_email
+    session['s_user_password'] = user_password
     # print('got the things {} {}'.format(user_email, user_password))
+
+    sql = "SELECT email FROM users WHERE email = :email"
+
+    cursor = db.session.execute(sql, {'email': user_email})
+
+    user_result = cursor.fetchone()
+
+    if user_result == None:
+        sql = """INSERT INTO users (email, password) 
+                VALUES (:email, :password) 
+                """
+        db.session.execute(sql, {'email': user_email, 'password': user_password})
+
+    db.session.commit()
+
+    print(user_result)
 
     return redirect("/")
 
