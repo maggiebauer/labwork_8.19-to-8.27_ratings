@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Registration Form</h2>
+
+  <h3> Please log in. If you do not have an account, this will make one for you. </h3>
+  <form action="/register" method="POST">
+    Email Address: <input type="text" name="email">
+    Password: <input type="text" name="password">
+    <input type="submit">
+  </form>
+
+{% endblock %}
