@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Oh No!</h2>
+
+  <h3> Are you sure you want to go?</h3>
+  <form action="/logout">
+    <input type="submit" id=logOut value='Log Out Now'>
+    <input type="submit" id=dontLogOut value='Stay Logged In'>
+  </form>
+
+{% endblock %}

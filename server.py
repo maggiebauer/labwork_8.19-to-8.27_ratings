@@ -36,19 +36,20 @@ def user_list():
 
 @app.route("/register",methods = ["GET"])
 def display_register_form():
+    """ displays register form page """
 
     return render_template("register_form.html")
 
 
 @app.route("/register",methods = ["POST"])
 def register_form():
+    """ registers new user """
 
     user_email = request.form.get("email")
     user_password = request.form.get("password")
 
     session['s_user_email'] = user_email
     session['s_user_password'] = user_password
-    # print('got the things {} {}'.format(user_email, user_password))
 
     sql = "SELECT email FROM users WHERE email = :email"
 
@@ -68,6 +69,70 @@ def register_form():
 
     return redirect("/")
 
+@app.route("/login",methods = ["GET"])
+def display_login_form():
+    """ displays the login page """
+
+    if session['s_user_email'] != None:
+        return redirect("/")
+
+    return render_template("login.html")
+
+@app.route("/login",methods = ["POST"])
+def login_form():
+    """ log in user """
+
+    user_email = request.form.get("email")
+    user_password = request.form.get("password")
+
+    session['s_user_email'] = user_email
+    session['s_user_password'] = user_password
+
+    sql = "SELECT user_id, email, password FROM users WHERE email = :email"
+
+    cursor = db.session.execute(sql, {'email': user_email, 'password': user_password})
+
+    user_result = cursor.fetchone()
+
+    # print(user_result[1], user_result[0])
+
+    if user_result == None:
+        flash('Wrong username. Please try again.')
+        return redirect('/login')
+
+    elif user_result[2] == user_password:
+        session['s_user_result'] = user_result[0]
+        flash('Login successful!')
+        return redirect('/')
+
+    else:
+        flash('Wrong password. Please try again.')
+        return redirect('/login')
+
+
+@app.route('/logout')
+def logout():
+    """Log out page."""
+    return render_template('logout.html')
+
+@app.route("/logout", methods = ["GET"])
+def logout_form():
+    """ Logs users out if they select the logout button """
+    logout = request.args.get("logOut")
+    stayLogIn = request.args.get("dontLogOut")
+
+    if logout == True:
+        print("did work")
+    else:
+        print('didnt work')
+
+    # if logOut == None:
+    #     flash('Wrong username. Please try again.')
+    #     return redirect('/login')
+
+    return redirect("/")
+
+    
 
 
 if __name__ == "__main__":
