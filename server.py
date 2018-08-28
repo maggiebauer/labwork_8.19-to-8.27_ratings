@@ -33,6 +33,27 @@ def user_list():
     users = User.query.all()
     return render_template("users.html", users=users)
 
+@app.route("/user_profile/<id>")
+def display_user_profile(id):
+    """ Displays a users AGE, ZIPCODE, and a list of movies/scores they've rated"""
+
+    selected_user = id  #selects user id from url
+    selected_user_data = User.query.get(selected_user)   # finds user in users table
+
+    all_users_movie_ratings = db.session.query(Rating.user_id, Rating.movie_id, Rating.score)  #gets all userid, movieid, rating from ratings table
+    selected_user_movies_ratings = all_users_movie_ratings.filter(Rating.user_id==selected_user)   #limits results to our selected user
+    
+    # all_users_movies = db.session.query(Movie.title)  #gets all titles from movies table
+    # selected_user_movies = all_users_movies.filter(Rating.movie_id==selected_user)
+
+
+    return render_template("user_profile.html", selected_user_data=selected_user_data, 
+                        selected_user_movies_ratings=selected_user_movies_ratings)
+
+    #FINISH:
+    #Get movie title from movie table using movie id from ratings table and update html to reflect info
+
+
 
 @app.route("/register",methods = ["GET"])
 def display_register_form():
@@ -73,7 +94,7 @@ def register_form():
 def display_login_form():
     """ displays the login page """
 
-    if session['s_user_email'] != None:
+    if session:
         return redirect("/")
 
     return render_template("login.html")
@@ -115,20 +136,21 @@ def logout():
     """Log out page."""
     return render_template('logout.html')
 
-@app.route("/logout", methods = ["GET"])
+@app.route("/logout", methods = ["POST"])
 def logout_form():
     """ Logs users out if they select the logout button """
-    logout = request.args.get("logOut")
-    stayLogIn = request.args.get("dontLogOut")
+    logout = request.form.get("logOut")
+    stayLogIn = request.form.get("dontLogOut")
+ 
+    if logout:
+        session.clear()
+        flash('Logged Out')
 
-    if logout == True:
-        print("did work")
-    else:
-        print('didnt work')
+    if stayLogIn:
+        flash('Still Logged In')
+        #check this flash
 
-    # if logOut == None:
-    #     flash('Wrong username. Please try again.')
-    #     return redirect('/login')
+
 
     return redirect("/")
 
